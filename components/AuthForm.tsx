@@ -1,16 +1,23 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import Image from "next/image";
-import Link from "next/link";
-
-import { email, z } from "zod";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import Image from "next/image";
+import Link from "next/link";
 import { toast } from "sonner";
-import Formfield from "./FormField";
+import FormField from "@/components/FormField";
 import { useRouter } from "next/navigation";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+
+import { auth } from "@/firebase/client";
+import { signIn, signUp } from "@/lib/actions/auth.action";
 
 const authFormSchema = (type: FormType) => {
   return z.object({
@@ -23,7 +30,7 @@ const authFormSchema = (type: FormType) => {
 const AuthForm = ({ type }: { type: FormType }) => {
   const router = useRouter();
   const formSchema = authFormSchema(type);
-  // 1. Define your form.
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -33,72 +40,119 @@ const AuthForm = ({ type }: { type: FormType }) => {
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      if (type === "sign-in") {
-        toast.success("Account created successfuly. Please sign in.");
+      if (type === "sign-up") {
+        const { name, email, password } = values;
+        const userCredentials = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        const result = await signUp({
+          uid: userCredentials.user.uid,
+          name: name!,
+          email,
+          password,
+        });
+
+        if (!result?.success) {
+          toast.error(result?.message);
+          return;
+        }
+
+        toast.success("Account created successfully. Please sign in.");
         router.push("/sign-in");
       } else {
-        toast.success("Sign in successfuly.");
+        const { email, password } = values;
+        const userCredentials = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+        const idToken = await userCredentials.user.getIdToken();
+
+        if (!idToken) {
+          toast.error("Sign in failed");
+          return;
+        }
+
+        await signIn({
+          email,
+          idToken,
+        });
+
+        toast.success("Signed in successfully.");
         router.push("/");
       }
     } catch (error) {
       console.log(error);
-      toast.error(`There was an ${error}`);
+      toast.error(`There was an error: ${error}`);
     }
   }
 
-  const isSign = type === "sign-in";
+  const isSignIn = type === "sign-in";
 
   return (
-    <div className="card-border lg:min-w-[566px]">
-      <div className="flex flex-col gap-6 card py-14 px-10">
-        <div className="flex flex-row justify-center gap-2">
-          <Image src="/logo.svg" alt="logo" height={32} width={38} />
-          <h2 className="text-primary-100">Echo Mock</h2>
+    <div className="card-border lg:min-w-[566px] animate-fadeIn">
+      <div className="flex flex-col gap-8 card py-14 px-10 relative overflow-hidden">
+        {/* Artistic corner decoration */}
+        <div className="artistic-corner"></div>
+
+        <div className="flex flex-row gap-3 justify-center items-center">
+          <Image src="/logo2.png" alt="EchoMock Logo" height={36} width={42} />
+          <h2 className="text-primary-100 text-2xl font-bold tracking-tight">
+            EchoMock
+          </h2>
         </div>
-        <h3>Pratice job interview with AI</h3>
+
+        <h3 className="text-center text-light-100 text-xl font-semibold tracking-wide">
+          Practice job interviews with AI
+        </h3>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full space-y-6 mt-4 form"
           >
-            {!isSign && (
-              <Formfield
+            {!isSignIn && (
+              <FormField
                 control={form.control}
                 name="name"
-                lable="name"
-                placeholder="Your Name"
+                label="Full Name"
+                placeholder="Enter your full name"
               />
             )}
-            <Formfield
+            <FormField
               control={form.control}
               name="email"
-              lable="Email"
-              placeholder="Your email address"
+              label="Email Address"
+              placeholder="your.email@example.com"
               type="email"
             />
-            <Formfield
+
+            <FormField
               control={form.control}
               name="password"
-              lable="Password"
-              placeholder="Your Password"
+              label="Password"
+              placeholder="Create a secure password"
               type="password"
             />
-            <Button className="btn" type="submit">
-              {isSign ? "Sign in" : "Create an account"}
+
+            <Button className="btn text-lg py-6 font-semibold" type="submit">
+              {isSignIn ? "Sign In" : "Create Account"}
             </Button>
           </form>
         </Form>
-        <p className="text-center">
-          {isSign ? "No account yet?" : "Have an account already?"}
+
+        <p className="text-center text-light-400">
+          {isSignIn ? "Don't have an account?" : "Already have an account?"}
           <Link
-            href={!isSign ? "/sign-in" : "/sign-up"}
-            className="font-bold text-user-primary ml-1"
+            href={!isSignIn ? "/sign-in" : "/sign-up"}
+            className="font-bold text-accent-mustard hover:text-accent-mustard/80 ml-2 transition-colors duration-200"
           >
-            {isSign ? "Sign in" : "Sign up"}
+            {!isSignIn ? "Sign In" : "Sign Up"}
           </Link>
         </p>
       </div>

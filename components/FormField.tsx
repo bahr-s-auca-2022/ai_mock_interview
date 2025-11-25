@@ -28,17 +28,17 @@ const FormField = <T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
-          <FormLabel className="label">{label}</FormLabel>
+        <FormItem className="space-y-3">
+          <FormLabel className="label text-base font-medium">{label}</FormLabel>
           <FormControl>
             <Input
-              className="input"
+              className="input text-light-100 placeholder:text-light-400 focus:placeholder:text-light-400/60 transition-all duration-200"
               placeholder={placeholder}
               type={type}
               {...field}
             />
           </FormControl>
-          <FormMessage />
+          <FormMessage className="text-destructive-100 font-medium" />
         </FormItem>
       )}
     />
