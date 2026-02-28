@@ -1,5 +1,4 @@
 import { Controller, Control, FieldValues, Path } from "react-hook-form";
-
 import {
   FormItem,
   FormLabel,
@@ -28,17 +27,19 @@ const FormField = <T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className="space-y-3">
-          <FormLabel className="label text-base font-medium">{label}</FormLabel>
+        <FormItem className="space-y-1.5">
+          <FormLabel className="text-sm font-semibold text-light-400 ml-1">
+            {label}
+          </FormLabel>
           <FormControl>
             <Input
-              className="input text-light-100 placeholder:text-light-400 focus:placeholder:text-light-400/60 transition-all duration-200"
+              className="bg-dark-300/50 border-light-400/10 h-12 px-4 text-white placeholder:text-light-400/40 focus:border-accent-teal/50 focus:ring-1 focus:ring-accent-teal/20 transition-all duration-300 rounded-xl"
               placeholder={placeholder}
               type={type}
               {...field}
             />
           </FormControl>
-          <FormMessage className="text-destructive-100 font-medium" />
+          <FormMessage className="text-destructive-100 text-xs font-medium" />
         </FormItem>
       )}
     />

@@ -1,5 +1,12 @@
-import { cn } from "@/lib/utils";
+"use client";
+
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+import { cn } from "@/lib/utils";
+import { vapi } from "@/lib/vapi.sdk";
+import { interviewer } from "@/constants";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -8,112 +15,207 @@ enum CallStatus {
   FINISHED = "FINISHED",
 }
 
-const Agent = ({ userName }: AgentProps) => {
-  const callStatus = CallStatus.FINISHED;
-  const isSpeaking = true;
-  const messages = [
-    "What is your name? ",
-    "My name is Abbas Bahr, nice to meet you",
-  ];
-  const lastMessages = messages[messages.length - 1];
+interface SavedMessage {
+  role: "user" | "system" | "assistant";
+  content: string;
+}
+
+const Agent = ({
+  userName,
+  userId,
+  interviewId,
+  feedbackId,
+  type,
+  questions,
+}: AgentProps) => {
+  const router = useRouter();
+  const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
+  const [messages, setMessages] = useState<SavedMessage[]>([]);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [lastMessage, setLastMessage] = useState<string>("");
+
+  useEffect(() => {
+    const onCallStart = () => {
+      setCallStatus(CallStatus.ACTIVE);
+    };
+
+    const onCallEnd = () => {
+      setCallStatus(CallStatus.FINISHED);
+    };
+
+    const onMessage = (message: Message) => {
+      if (message.type === "transcript" && message.transcriptType === "final") {
+        const newMessage = { role: message.role, content: message.transcript };
+        setMessages((prev) => [...prev, newMessage]);
+      }
+    };
+
+    const onSpeechStart = () => {
+      console.log("speech start");
+      setIsSpeaking(true);
+    };
+
+    const onSpeechEnd = () => {
+      console.log("speech end");
+      setIsSpeaking(false);
+    };
+
+    const onError = (error: Error) => {
+      console.log("Error:", error);
+    };
+
+    vapi.on("call-start", onCallStart);
+    vapi.on("call-end", onCallEnd);
+    vapi.on("message", onMessage);
+    vapi.on("speech-start", onSpeechStart);
+    vapi.on("speech-end", onSpeechEnd);
+    vapi.on("error", onError);
+
+    return () => {
+      vapi.off("call-start", onCallStart);
+      vapi.off("call-end", onCallEnd);
+      vapi.off("message", onMessage);
+      vapi.off("speech-start", onSpeechStart);
+      vapi.off("speech-end", onSpeechEnd);
+      vapi.off("error", onError);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      setLastMessage(messages[messages.length - 1].content);
+    }
+
+    const handleGenerateFeedback = async (messages: SavedMessage[]) => {
+      console.log("handleGenerateFeedback");
+
+      const { success, feedbackId: id } = await createFeedback({
+        interviewId: interviewId!,
+        userId: userId!,
+        transcript: messages,
+        feedbackId,
+      });
+
+      if (success && id) {
+        router.push(`/interview/${interviewId}/feedback`);
+      } else {
+        console.log("Error saving feedback");
+        router.push("/");
+      }
+    };
+
+    if (callStatus === CallStatus.FINISHED) {
+      if (type === "generate") {
+        router.push("/");
+      } else {
+        handleGenerateFeedback(messages);
+      }
+    }
+  }, [messages, callStatus, feedbackId, interviewId, router, type, userId]);
+
+  const handleCall = async () => {
+    setCallStatus(CallStatus.CONNECTING);
+
+    if (type === "generate") {
+      await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
+        variableValues: {
+          username: userName,
+          userid: userId,
+        },
+      });
+    } else {
+      let formattedQuestions = "";
+      if (questions) {
+        formattedQuestions = questions
+          .map((question) => `- ${question}`)
+          .join("\n");
+      }
+
+      await vapi.start(interviewer, {
+        variableValues: {
+          questions: formattedQuestions,
+        },
+      });
+    }
+  };
+
+  const handleDisconnect = () => {
+    setCallStatus(CallStatus.FINISHED);
+    vapi.stop();
+  };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-6xl mx-auto gap-8 px-4">
-      {/* Cards Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+    <>
+      <div className="call-view">
         {/* AI Interviewer Card */}
-        <div className="card-border flex-1">
-          <div className="card p-8 flex flex-col items-center justify-center gap-4 h-full min-h-[320px]">
-            <div className="relative">
-              <div className="avatar size-28">
-                <Image
-                  src="/ai-avatar.png"
-                  alt="AI Interviewer"
-                  width={80}
-                  height={80}
-                  className="object-cover z-20 relative"
-                />
-                {isSpeaking && (
-                  <>
-                    <div className="animate-speak absolute inset-0" />
-                    <div className="absolute -inset-4 bg-accent-teal/20 rounded-full animate-ping" />
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="text-center">
-              <h3 className="text-2xl font-bold text-light-100 mb-2">
-                AI Interviewer
-              </h3>
-            </div>
+        <div className="card-interviewer">
+          <div className="avatar">
+            <Image
+              src="/ai-avatar.png"
+              alt="profile-image"
+              width={65}
+              height={54}
+              className="object-cover"
+            />
+            {isSpeaking && <span className="animate-speak" />}
           </div>
+          <h3>AI Interviewer</h3>
         </div>
 
-        {/* User Card */}
-        <div className="card-border flex-1">
-          <div className="card p-8 flex flex-col items-center justify-center gap-4 h-full min-h-[320px]">
-            <div className="avatar size-28">
-              <Image
-                src="/user-avatar1.jpeg"
-                alt={userName}
-                width={540}
-                height={540}
-                className="rounded-full object-cover size-[120px]"
-              />
-            </div>
-
-            <div className="text-center">
-              <h3 className="text-2xl font-bold text-light-100 mb-2">
-                {userName}
-              </h3>
-            </div>
+        {/* User Profile Card */}
+        <div className="card-border">
+          <div className="card-content">
+            <Image
+              src="/user-avatar1.jpeg"
+              alt="profile-image"
+              width={539}
+              height={539}
+              className="rounded-full object-cover size-[120px]"
+            />
+            <h3>{userName}</h3>
           </div>
         </div>
       </div>
 
-      {/* Transcript Section */}
       {messages.length > 0 && (
-        <div className="w-full max-w-2xl">
-          <div className="transcript-border">
-            <div className="transcript min-h-20">
-              <p
-                key={lastMessages}
-                className={cn(
-                  "text-lg text-center text-light-100 leading-relaxed transition-all duration-500",
-                  "animate-fadeIn"
-                )}
-              >
-                {lastMessages}
-              </p>
-            </div>
+        <div className="transcript-border">
+          <div className="transcript">
+            <p
+              key={lastMessage}
+              className={cn(
+                "transition-opacity duration-500 opacity-0",
+                "animate-fadeIn opacity-100"
+              )}
+            >
+              {lastMessage}
+            </p>
           </div>
         </div>
       )}
 
-      {/* Call Controls */}
-      <div className="flex justify-center w-full mt-4">
+      <div className="w-full flex justify-center">
         {callStatus !== "ACTIVE" ? (
-          <button className="relative btn-call min-w-[140px]">
+          <button className="relative btn-call" onClick={() => handleCall()}>
             <span
               className={cn(
-                "absolute inset-0 animate-ping rounded-full bg-success-100 opacity-75",
-                callStatus === "CONNECTING" ? "block" : "hidden"
+                "absolute animate-ping rounded-full opacity-75",
+                callStatus !== "CONNECTING" && "hidden"
               )}
             />
-            <span className="relative z-10 font-semibold">
+
+            <span className="relative">
               {callStatus === "INACTIVE" || callStatus === "FINISHED"
                 ? "Call"
-                : "Connecting..."}
+                : ". . ."}
             </span>
           </button>
         ) : (
-          <button className="btn-disconnect min-w-[140px] font-semibold">
-            End Call
+          <button className="btn-disconnect" onClick={() => handleDisconnect()}>
+            End
           </button>
         )}
       </div>
-    </div>
+    </>
   );
 };
 

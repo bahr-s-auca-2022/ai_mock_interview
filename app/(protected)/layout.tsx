@@ -1,16 +1,18 @@
-import React, { ReactNode } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { ReactNode } from "react";
 import { isAuthenticated } from "@/lib/actions/auth.action";
 import { redirect } from "next/navigation";
 import LogoutButton from "@/components/LogoutButton";
+import Link from "next/link";
+import Image from "next/image";
 
-const RootLayout = async ({ children }: { children: ReactNode }) => {
-  const isUserAuthenticated = await isAuthenticated;
+export default async function ProtectedLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const authenticated = await isAuthenticated();
 
-  if (!isUserAuthenticated) {
-    redirect("/sign-in");
-  }
+  if (!authenticated) redirect("/sign-in");
 
   return (
     <div className="root-layout">
@@ -28,6 +30,4 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
       {children}
     </div>
   );
-};
-
-export default RootLayout;
+}

@@ -108,3 +108,8 @@ export async function isAuthenticated() {
 
   return !!user;
 }
+export async function logout() {
+  (await cookies()).delete("session");
+
+  return { success: true };
+}

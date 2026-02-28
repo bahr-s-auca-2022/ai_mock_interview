@@ -9,23 +9,20 @@ const page = () => {
   return (
     <>
       <section className="relative overflow-hidden">
-        {/* Background Artistic Elements */}
         <div className="absolute top-0 left-0 w-72 h-72 bg-accent-teal/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent-mustard/5 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
 
         <div className="card-cta relative z-10">
           <div className="flex flex-col gap-8 max-w-2xl">
-            {/* Main Heading with Gradient Text */}
             <div className="space-y-4">
               <h1 className="text-5xl lg:text-6xl font-bold tracking-tight">
                 <span className="bg-gradient-to-r from-accent-mustard via-primary-100 to-accent-teal bg-clip-text text-transparent">
                   Master Your
                 </span>
                 <br />
-                <span className="text-light-100">Interview Game</span>
+                <span className="text-light-100">Interview </span>
               </h1>
 
-              {/* Subtitle with emphasized key points */}
               <p className="text-xl lg:text-2xl text-light-100/80 leading-relaxed font-light">
                 Transform interview anxiety into{" "}
                 <span className="text-accent-mustard font-semibold">
@@ -44,7 +41,6 @@ const page = () => {
               </p>
             </div>
 
-            {/* Benefits List */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3 text-light-100/90">
                 <div className="w-2 h-2 bg-accent-mustard rounded-full"></div>
@@ -66,7 +62,6 @@ const page = () => {
               </div>
             </div>
 
-            {/* CTA Section */}
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
               <Button
                 asChild
@@ -92,7 +87,6 @@ const page = () => {
             </div>
           </div>
 
-          {/* Enhanced Image Section */}
           <div className="relative">
             <div className="relative">
               <Image
@@ -104,16 +98,12 @@ const page = () => {
                 priority
               />
 
-              {/* Floating elements around the image */}
               <div className="absolute -top-4 -right-4 w-24 h-24 bg-accent-teal/20 rounded-full blur-xl animate-pulse"></div>
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-accent-mustard/15 rounded-full blur-xl animate-pulse delay-1000"></div>
-
-              {/* Status indicator */}
             </div>
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-light-400">
           <div className="w-6 h-10 border-2 border-light-400/30 rounded-full flex justify-center">
             <div className="w-1 h-3 bg-accent-mustard rounded-full mt-2 animate-bounce"></div>
@@ -128,7 +118,6 @@ const page = () => {
             <InterviewCard {...interview} key={interview.id} />
           ))}
         </div>
-        {/* <p>You have not taken any interviews yet</p> */}
       </section>
 
       <section className="flex flex-col gap-6 mt-8">
@@ -138,7 +127,6 @@ const page = () => {
             <InterviewCard {...interview} key={interview.id} />
           ))}
         </div>
-        {/* <p>there are no interviews available</p> */}
       </section>
     </>
   );
