@@ -13,19 +13,45 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <div className="root-layout">
-      <nav className="flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
-          <Image src="/logo2.png" alt="EchoMock Logo" width={42} height={36} />
-          <h2 className="text-primary-100 text-2xl font-bold tracking-tight">
-            EchoMock
-          </h2>
-        </Link>
+    <div className="min-h-screen bg-dark-100 selection:bg-accent-mustard/30">
+      {/* Premium Sticky Header */}
+      <nav className="sticky top-0 z-50 w-full border-b border-white/5 bg-dark-100/80 backdrop-blur-md">
+        <div className="mx-auto max-w-7xl flex items-center justify-between h-20 px-6 lg:px-12">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 group transition-transform hover:scale-[1.02]"
+          >
+            <div className="relative">
+              <Image
+                src="/logo2.png"
+                alt="EchoMock"
+                width={38}
+                height={32}
+                className="relative z-10"
+              />
+              <div className="absolute inset-0 bg-accent-mustard/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+            <h2 className="text-primary-100 text-xl font-bold tracking-tight">
+              EchoMock
+            </h2>
+          </Link>
 
-        <LogoutButton />
+          <div className="flex items-center gap-6">
+            <Link
+              href="/dashboard"
+              className="text-sm font-medium text-light-400 hover:text-white transition-colors"
+            >
+              Dashboard
+            </Link>
+            <div className="h-4 w-[1px] bg-white/10" />
+            <LogoutButton />
+          </div>
+        </div>
       </nav>
 
-      {children}
+      <main className="mx-auto max-w-7xl px-6 lg:px-12 py-12 animate-fadeIn">
+        {children}
+      </main>
     </div>
   );
 };

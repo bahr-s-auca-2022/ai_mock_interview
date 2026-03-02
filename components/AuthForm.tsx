@@ -56,7 +56,7 @@ const AuthForm = ({ type: initialType }: { type: "sign-in" | "sign-up" }) => {
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
       await signIn({ email: result.user.email!, idToken });
-      toast.success("Signed in successfully!");
+      toast.success("Sign in successfully!");
       router.push("/");
     } catch (error: any) {
       toast.error(error.message);
@@ -106,7 +106,7 @@ const AuthForm = ({ type: initialType }: { type: "sign-in" | "sign-up" }) => {
         );
         const idToken = await userCredentials.user.getIdToken();
         await signIn({ email: values.email, idToken });
-        toast.success("Welcome back!");
+        toast.success("Sign in successfully");
         router.push("/");
       }
     } catch (error: any) {
@@ -171,7 +171,7 @@ const AuthForm = ({ type: initialType }: { type: "sign-in" | "sign-up" }) => {
                 ? "Join EchoMock"
                 : mode === "reset"
                 ? "Reset Password"
-                : "Welcome back"}
+                : "Sign in successfully"}
             </h2>
             <p className="text-light-400">
               {mode === "sign-up"
