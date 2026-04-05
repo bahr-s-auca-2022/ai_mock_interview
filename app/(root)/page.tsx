@@ -2,12 +2,27 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { dummyInterviews } from "@/constants";
 import InterviewCard from "@/components/InterviewCard";
+import {
+  getCurrentUser,
+  getInterviewsByUserId,
+  getLatestInterviews,
+} from "@/lib/actions/auth.action";
 
-const page = () => {
+const page = async () => {
+  const user = await getCurrentUser();
+
+  const [userInterviews, latestInterviews] = await Promise.all([
+    getInterviewsByUserId(user?.id!),
+    getLatestInterviews({ userId: user?.id! }),
+  ]);
+
+  const hasPastInterviews = userInterviews?.length! > 0;
+  const hasUpcomingInterviews = latestInterviews?.length! > 0;
+
   return (
     <>
+      {/* HERO SECTION */}
       <section className="relative overflow-hidden">
         <div className="absolute top-0 left-0 w-72 h-72 bg-accent-teal/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent-mustard/5 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
@@ -57,7 +72,7 @@ const page = () => {
               <div className="flex items-center gap-3 text-light-100/90">
                 <div className="w-2 h-2 bg-primary-100 rounded-full"></div>
                 <span className="text-lg">
-                  Available in both English and Farsi
+                  Available in both English and Farsi, coming soon
                 </span>
               </div>
             </div>
@@ -75,44 +90,59 @@ const page = () => {
           </div>
 
           <div className="relative">
-            <div className="relative">
-              <Image
-                src="/robot1.png"
-                alt="AI Interview Assistant"
-                width={480}
-                height={480}
-                className="max-sm:hidden animate-float z-20 relative"
-                priority
-              />
-
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-accent-teal/20 rounded-full blur-xl animate-pulse"></div>
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-accent-mustard/15 rounded-full blur-xl animate-pulse delay-1000"></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-light-400">
-          <div className="w-6 h-10 border-2 border-light-400/30 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-accent-mustard rounded-full mt-2 animate-bounce"></div>
+            <Image
+              src="/robot1.png"
+              alt="AI Interview Assistant"
+              width={480}
+              height={480}
+              className="max-sm:hidden animate-float z-20 relative"
+              priority
+            />
           </div>
         </div>
       </section>
 
+      {/* YOUR INTERVIEWS */}
       <section className="flex flex-col gap-6 mt-8">
         <h2 className="text-gray-300">Your Interviews</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
-          {dummyInterviews.map((interview) => (
-            <InterviewCard {...interview} key={interview.id} />
-          ))}
+          {hasPastInterviews ? (
+            userInterviews?.map((interview) => (
+              <InterviewCard
+                key={interview.id}
+                userId={user?.id}
+                interviewId={interview.id}
+                role={interview.role}
+                type={interview.type}
+                techstack={interview.techstack}
+                createdAt={interview.createdAt}
+              />
+            ))
+          ) : (
+            <p>You haven&apos;t taken any interviews yet</p>
+          )}
         </div>
       </section>
 
+      {/* TAKE INTERVIEW */}
       <section className="flex flex-col gap-6 mt-8">
         <h2 className="text-gray-300">Take an interview</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
-          {dummyInterviews.map((interview) => (
-            <InterviewCard {...interview} key={interview.id} />
-          ))}
+          {hasUpcomingInterviews ? (
+            latestInterviews?.map((interview) => (
+              <InterviewCard
+                key={interview.id}
+                userId={user?.id}
+                interviewId={interview.id}
+                role={interview.role}
+                type={interview.type}
+                techstack={interview.techstack}
+                createdAt={interview.createdAt}
+              />
+            ))
+          ) : (
+            <p>There are no interviews available</p>
+          )}
         </div>
       </section>
     </>

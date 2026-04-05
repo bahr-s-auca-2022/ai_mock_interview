@@ -16,7 +16,6 @@ const page = async () => {
         </div>
         <h1 className="text-4xl font-bold text-white tracking-tight">
           AI Interview{" "}
-          <span className="text-light-400 font-light">Simulation</span>
         </h1>
       </header>
 
