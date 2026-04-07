@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { dummyInterviews } from "@/constants";
 import InterviewCard from "@/components/InterviewCard";
 import {
   getCurrentUser,
@@ -13,13 +12,33 @@ import {
 const page = async () => {
   const user = await getCurrentUser();
 
+  // ✅ Check if user exists and has an ID
+  if (!user || !user.id) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-light-100 mb-4">
+            Welcome to AI Mock Interview
+          </h2>
+          <p className="text-light-100/80 mb-6">
+            Please sign in to access your interviews
+          </p>
+          <Button asChild className="btn-primary">
+            <Link href="/sign-in">Sign In</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Now safely use user.id (it's guaranteed to exist)
   const [userInterviews, latestInterviews] = await Promise.all([
-    getInterviewsByUserId(user?.id!),
-    getLatestInterviews({ userId: user?.id! }),
+    getInterviewsByUserId(user.id),
+    getLatestInterviews({ userId: user.id }),
   ]);
 
-  const hasPastInterviews = userInterviews?.length! > 0;
-  const hasUpcomingInterviews = latestInterviews?.length! > 0;
+  const hasPastInterviews = userInterviews && userInterviews.length > 0;
+  const hasUpcomingInterviews = latestInterviews && latestInterviews.length > 0;
 
   return (
     <>
@@ -117,10 +136,10 @@ const page = async () => {
         <h2 className="text-gray-300">Your Interviews</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
           {hasPastInterviews ? (
-            userInterviews?.map((interview) => (
+            userInterviews.map((interview) => (
               <InterviewCard
                 key={interview.id}
-                userId={user?.id}
+                userId={user.id}
                 interviewId={interview.id}
                 role={interview.role}
                 type={interview.type}
@@ -129,7 +148,14 @@ const page = async () => {
               />
             ))
           ) : (
-            <p>You haven&apos;t taken any interviews yet</p>
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-400 text-lg">
+                You haven&apos;t taken any interviews yet.
+              </p>
+              <Button asChild className="mt-4 btn-primary">
+                <Link href="/interview">Start Your First Interview</Link>
+              </Button>
+            </div>
           )}
         </div>
       </section>
@@ -138,10 +164,10 @@ const page = async () => {
         <h2 className="text-gray-300">Take an interview</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
           {hasUpcomingInterviews ? (
-            latestInterviews?.map((interview) => (
+            latestInterviews.map((interview) => (
               <InterviewCard
                 key={interview.id}
-                userId={user?.id}
+                userId={user.id}
                 interviewId={interview.id}
                 role={interview.role}
                 type={interview.type}
@@ -150,7 +176,14 @@ const page = async () => {
               />
             ))
           ) : (
-            <p>There are no interviews available</p>
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-400 text-lg">
+                There are no interviews available from other users yet.
+              </p>
+              <p className="text-gray-500 mt-2">
+                Create an interview first, then others can practice with it!
+              </p>
+            </div>
           )}
         </div>
       </section>

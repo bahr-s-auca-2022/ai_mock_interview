@@ -128,36 +128,57 @@ export async function logout() {
   return { success: true };
 }
 
-export async function getInterviewsByUserId(
-  userId: string
-): Promise<Interview[] | null> {
-  const interviews = await db
-    .collection("interviews")
-    .where("userId", "==", userId)
-    .orderBy("createdAt", "desc")
-    .get();
+export async function getInterviewsByUserId(userId: string) {
+  if (!userId) {
+    console.log("No userId provided to getInterviewsByUserId");
+    return [];
+  }
 
-  return interviews.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Interview[];
+  try {
+    const interviewsRef = db.collection("interviews");
+    const query = interviewsRef.where("userId", "==", userId);
+    const snapshot = await query.get();
+
+    if (snapshot.empty) {
+      return [];
+    }
+
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error("Error in getInterviewsByUserId:", error);
+    return [];
+  }
 }
 
-export async function getLatestInterviews(
-  params: GetLatestInterviewsParams
-): Promise<Interview[] | null> {
-  const { userId, limit = 20 } = params;
+export async function getLatestInterviews({ userId }: { userId: string }) {
+  if (!userId) {
+    console.log("No userId provided to getLatestInterviews");
+    return [];
+  }
 
-  const interviews = await db
-    .collection("interviews")
-    .orderBy("createdAt", "desc")
-    .where("finalized", "==", true)
-    .where("userId", "!=", userId)
-    .limit(limit)
-    .get();
+  try {
+    const interviewsRef = db.collection("interviews");
+    const query = interviewsRef
+      .where("finalized", "==", true)
+      .where("userId", "!=", userId)
+      .orderBy("createdAt", "desc")
+      .limit(10);
 
-  return interviews.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Interview[];
+    const snapshot = await query.get();
+
+    if (snapshot.empty) {
+      return [];
+    }
+
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error("Error in getLatestInterviews:", error);
+    return [];
+  }
 }
