@@ -8,7 +8,6 @@ import { Mic, PhoneOff, Terminal, Sparkles, User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import { interviewer } from "@/constants";
-// import { createFeedback } from "@/lib/actions/feedback.action";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -44,6 +43,7 @@ const Agent = ({
   const [messages, setMessages] = useState<SavedMessage[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastMessage, setLastMessage] = useState<string>("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Logic Preserved Exactly
   useEffect(() => {
@@ -104,6 +104,7 @@ const Agent = ({
 
     if (callStatus === CallStatus.FINISHED) {
       if (type === "generate") {
+        // For generate mode, just go back to home
         router.push("/");
       } else {
         handleGenerateFeedback(messages);
@@ -113,11 +114,17 @@ const Agent = ({
 
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
+
     if (type === "generate") {
+      // ✅ For generate mode, start the VAPI workflow
       await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-        variableValues: { username: userName, userid: userId },
+        variableValues: {
+          username: userName,
+          userid: userId,
+        },
       });
     } else {
+      // ✅ For practice mode, use the interviewer with pre-generated questions
       let formattedQuestions = questions
         ? questions.map((q) => `- ${q}`).join("\n")
         : "";
@@ -142,7 +149,7 @@ const Agent = ({
             "relative flex flex-col items-center justify-center rounded-[40px] border transition-all duration-700 overflow-hidden",
             isSpeaking
               ? "border-accent-mustard/40 bg-dark-200 shadow-[0_0_40px_-10px_rgba(212,165,93,0.2)]"
-              : "border-white/5 bg-dark-200/40"
+              : "border-white/5 bg-dark-200/40",
           )}
         >
           <div className="absolute inset-0 artistic-dots opacity-10 pointer-events-none" />
@@ -156,7 +163,7 @@ const Agent = ({
             <div
               className={cn(
                 "relative z-10 size-full rounded-full bg-gradient-to-b from-dark-300 to-dark-100 border border-white/10 flex-center shadow-2xl transition-transform duration-500",
-                isSpeaking && "scale-105"
+                isSpeaking && "scale-105",
               )}
             >
               <Image
@@ -185,7 +192,7 @@ const Agent = ({
                 key={i}
                 className={cn(
                   "w-1 bg-accent-mustard rounded-t-full transition-all duration-300",
-                  isSpeaking ? "h-full" : "h-1"
+                  isSpeaking ? "h-full" : "h-1",
                 )}
                 style={{ transitionDelay: `${i * 30}ms` }}
               />
@@ -198,7 +205,6 @@ const Agent = ({
           <div className="relative z-10 size-32 md:size-40 rounded-full overflow-hidden border-2 border-accent-teal/20 p-1">
             <div className="size-full rounded-full overflow-hidden bg-dark-100 flex-center">
               <User size={60} className="text-light-400 opacity-50" />
-              {/* Note: In production, swap User icon for actual user image if available */}
             </div>
           </div>
           <div className="mt-8 text-center">
@@ -227,7 +233,9 @@ const Agent = ({
           <div className="flex flex-col items-center gap-4 opacity-30 group">
             <p className="text-light-400 font-medium text-sm tracking-wide">
               {callStatus === CallStatus.INACTIVE
-                ? "Click 'Start Session' to begin the interview"
+                ? type === "generate"
+                  ? "Click 'Start Session' to create a new interview"
+                  : "Click 'Start Session' to begin the interview"
                 : "Establishing connection..."}
             </p>
           </div>
@@ -251,7 +259,11 @@ const Agent = ({
               ) : (
                 <>
                   <Mic size={20} />
-                  <span>Start Interview</span>
+                  <span>
+                    {type === "generate"
+                      ? "Create New Interview"
+                      : "Start Interview"}
+                  </span>
                 </>
               )}
             </button>

@@ -136,7 +136,10 @@ export async function getInterviewsByUserId(userId: string) {
 
   try {
     const interviewsRef = db.collection("interviews");
-    const query = interviewsRef.where("userId", "==", userId);
+    const query = interviewsRef
+      .where("userId", "==", userId)
+      .orderBy("createdAt", "desc");
+
     const snapshot = await query.get();
 
     if (snapshot.empty) {
