@@ -31,7 +31,7 @@ interface AgentProps {
 }
 
 const Agent = ({
-  userName = "Candidate",
+  userName,
   userId,
   interviewId,
   feedbackId,
@@ -86,7 +86,6 @@ const Agent = ({
     if (messages.length > 0) {
       setLastMessage(messages[messages.length - 1].content);
     }
-
     const handleGenerateFeedback = async (messages: SavedMessage[]) => {
       const { success, feedbackId: id } = await createFeedback({
         interviewId: interviewId!,
@@ -94,14 +93,12 @@ const Agent = ({
         transcript: messages,
         feedbackId,
       });
-
       if (success && id) {
         router.push(`/interview/${interviewId}/feedback`);
       } else {
         router.push("/");
       }
     };
-
     if (callStatus === CallStatus.FINISHED) {
       if (type === "generate") {
         // For generate mode, just go back to home

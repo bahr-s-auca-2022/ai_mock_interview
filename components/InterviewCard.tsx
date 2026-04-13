@@ -6,21 +6,6 @@ import Link from "next/link";
 import { getRandomInterviewCover } from "@/lib/utils";
 import DisplayTechIncons from "./DisplayTechIncons";
 
-interface InterviewCardProps {
-  interviewId: string;
-  userId: string;
-  role: string;
-  type: string;
-  techstack: string[];
-  createdAt: string;
-}
-
-interface Feedback {
-  createdAt: string;
-  totalScore?: number;
-  finalAssessment?: string;
-}
-
 const InterviewCard = ({
   interviewId,
   userId,
@@ -33,7 +18,7 @@ const InterviewCard = ({
 
   const normalizedType = /mix/gi.test(type) ? "Mixed" : type;
   const formattedDate = dayjs(
-    feedback?.createdAt || createdAt || Date.now()
+    feedback?.createdAt || createdAt || Date.now(),
   ).format("MMM D, YYYY");
 
   return (
