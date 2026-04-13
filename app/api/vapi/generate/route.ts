@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const { type, role, level, techstack, amount, userid } =
       await request.json();
 
-    // ✅ Validate required fields
+    // Validate required fields
     if (!userid) {
       return Response.json(
         { success: false, error: "userid is required" },
@@ -31,7 +31,6 @@ export async function POST(request: Request) {
     console.log("Generating interview for user:", userid);
     console.log("Parameters:", { type, role, level, techstack, amount });
 
-    // ✅ Generate questions with timeout and retry logic
     let questionsText;
     try {
       const result = await generateText({
@@ -71,12 +70,12 @@ export async function POST(request: Request) {
       const cleaned = questionsText.trim().replace(/```json\s*|\s*```/g, "");
       questions = JSON.parse(cleaned);
 
-      // ✅ Validate questions is an array
+      // Validate questions is an array
       if (!Array.isArray(questions)) {
         throw new Error("Questions is not an array");
       }
 
-      // ✅ Ensure we have the requested number of questions
+      // Ensure we have the requested number of questions
       const requestedAmount = parseInt(amount);
       if (questions.length !== requestedAmount) {
         console.warn(
@@ -99,7 +98,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // ✅ Create interview object
     const interview = {
       role: role,
       type: type,
@@ -112,7 +110,6 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    // ✅ Save to Firebase
     try {
       const docRef = await db.collection("interviews").add(interview);
       console.log("Interview saved with ID:", docRef.id);
@@ -161,7 +158,6 @@ export async function GET() {
   );
 }
 
-// ✅ Add OPTIONS handler for CORS if needed
 export async function OPTIONS() {
   return new Response(null, {
     status: 204,

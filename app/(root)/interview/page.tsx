@@ -7,7 +7,6 @@ import Link from "next/link";
 const page = async () => {
   const user = await getCurrentUser();
 
-  // ✅ Add this check
   if (!user || !user.id) {
     return (
       <div className="flex items-center justify-center min-h-screen">

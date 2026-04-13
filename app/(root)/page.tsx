@@ -12,7 +12,6 @@ import {
 const page = async () => {
   const user = await getCurrentUser();
 
-  // ✅ Check if user exists and has an ID
   if (!user || !user.id) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -31,7 +30,6 @@ const page = async () => {
     );
   }
 
-  // ✅ Now safely use user.id (it's guaranteed to exist)
   const [userInterviews, latestInterviews] = await Promise.all([
     getInterviewsByUserId(user.id),
     getLatestInterviews({ userId: user.id }),
