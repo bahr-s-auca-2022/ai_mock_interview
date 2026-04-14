@@ -5,8 +5,9 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import { getRandomInterviewCover } from "@/lib/utils";
 import DisplayTechIncons from "./DisplayTechIncons";
+import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
 
-const InterviewCard = ({
+const InterviewCard = async ({
   interviewId,
   userId,
   role,
@@ -14,12 +15,19 @@ const InterviewCard = ({
   techstack,
   createdAt,
 }: InterviewCardProps) => {
-  const feedback = null as Feedback | null;
+  const feedback =
+    userId && interviewId
+      ? await getFeedbackByInterviewId({ interviewId, userId })
+      : null;
 
   const normalizedType = /mix/gi.test(type) ? "Mixed" : type;
+
   const formattedDate = dayjs(
     feedback?.createdAt || createdAt || Date.now(),
   ).format("MMM D, YYYY");
+
+  // Determine if the interview has been taken (feedback exists)
+  const hasTakenInterview = !!feedback;
 
   return (
     <div className="card-border w-full min-h-96 hover:scale-[1.02] transition-all duration-300">
@@ -30,7 +38,6 @@ const InterviewCard = ({
           </p>
         </div>
 
-        {/* Header */}
         <div className="flex items-center gap-4 mt-2">
           <Image
             src={getRandomInterviewCover()}
@@ -58,31 +65,34 @@ const InterviewCard = ({
 
               <div className="flex items-center gap-2">
                 <Image src="/star.svg" alt="star" width={18} height={18} />
-                <p className="text-sm">{feedback?.totalScore || "---"}/100</p>
+                <p className="text-sm">
+                  {hasTakenInterview && feedback?.totalScore !== undefined
+                    ? `${feedback.totalScore}/100`
+                    : "---/100"}
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Assessment */}
         <p className="text-light-100/80 line-clamp-3 min-h-[60px]">
-          {feedback?.finalAssessment ||
-            "You have not taken the interview yet. Start now to improve your skills."}
+          {hasTakenInterview && feedback?.finalAssessment
+            ? feedback.finalAssessment
+            : "You have not taken the interview yet. Start now to improve your skills."}
         </p>
 
-        {/* Tech + CTA */}
         <div className="flex justify-between items-center mt-auto pt-4 border-t border-light-400/20">
           <DisplayTechIncons techStack={techstack} />
 
           <Link
             href={
-              feedback
+              hasTakenInterview
                 ? `/interview/${interviewId}/feedback`
                 : `/interview/${interviewId}`
             }
           >
             <Button className="btn-primary">
-              {feedback ? "Check Feedback" : "View Interview"}
+              {hasTakenInterview ? "Check Feedback" : "View Interview"}
             </Button>
           </Link>
         </div>

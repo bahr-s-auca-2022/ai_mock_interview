@@ -128,60 +128,60 @@ export async function logout() {
   return { success: true };
 }
 
-export async function getInterviewsByUserId(userId: string) {
-  if (!userId) {
-    console.log("No userId provided to getInterviewsByUserId");
-    return [];
-  }
+// export async function getInterviewsByUserId(userId: string) {
+//   if (!userId) {
+//     console.log("No userId provided to getInterviewsByUserId");
+//     return [];
+//   }
 
-  try {
-    const interviewsRef = db.collection("interviews");
-    const query = interviewsRef
-      .where("userId", "==", userId)
-      .orderBy("createdAt", "desc");
+//   try {
+//     const interviewsRef = db.collection("interviews");
+//     const query = interviewsRef
+//       .where("userId", "==", userId)
+//       .orderBy("createdAt", "desc");
 
-    const snapshot = await query.get();
+//     const snapshot = await query.get();
 
-    if (snapshot.empty) {
-      return [];
-    }
+//     if (snapshot.empty) {
+//       return [];
+//     }
 
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-  } catch (error) {
-    console.error("Error in getInterviewsByUserId:", error);
-    return [];
-  }
-}
+//     return snapshot.docs.map((doc) => ({
+//       id: doc.id,
+//       ...doc.data(),
+//     }));
+//   } catch (error) {
+//     console.error("Error in getInterviewsByUserId:", error);
+//     return [];
+//   }
+// }
 
-export async function getLatestInterviews({ userId }: { userId: string }) {
-  if (!userId) {
-    console.log("No userId provided to getLatestInterviews");
-    return [];
-  }
+// export async function getLatestInterviews({ userId }: { userId: string }) {
+//   if (!userId) {
+//     console.log("No userId provided to getLatestInterviews");
+//     return [];
+//   }
 
-  try {
-    const interviewsRef = db.collection("interviews");
-    const query = interviewsRef
-      .where("finalized", "==", true)
-      .where("userId", "!=", userId)
-      .orderBy("createdAt", "desc")
-      .limit(10);
+//   try {
+//     const interviewsRef = db.collection("interviews");
+//     const query = interviewsRef
+//       .where("finalized", "==", true)
+//       .where("userId", "!=", userId)
+//       .orderBy("createdAt", "desc")
+//       .limit(10);
 
-    const snapshot = await query.get();
+//     const snapshot = await query.get();
 
-    if (snapshot.empty) {
-      return [];
-    }
+//     if (snapshot.empty) {
+//       return [];
+//     }
 
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-  } catch (error) {
-    console.error("Error in getLatestInterviews:", error);
-    return [];
-  }
-}
+//     return snapshot.docs.map((doc) => ({
+//       id: doc.id,
+//       ...doc.data(),
+//     }));
+//   } catch (error) {
+//     console.error("Error in getLatestInterviews:", error);
+//     return [];
+//   }
+// }
