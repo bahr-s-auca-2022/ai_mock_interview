@@ -25,40 +25,43 @@ interface Interview {
   finalized: boolean;
 }
 
+interface User {
+  name: string;
+  email: string;
+  id: string;
+  credits: number; // Voice-session credits. New users start with 3.
+  createdAt: string;
+}
+
+// ─── Billing
+
+type CreditTransactionType = "initial_grant" | "purchase" | "deduction";
+
+interface CreditTransaction {
+  id: string;
+  userId: string;
+  type: CreditTransactionType;
+  amount: number; // Positive = added. Negative = deducted.
+  description: string;
+  stripeSessionId?: string; // Present on "purchase" transactions only.
+  createdAt: string;
+}
+
+interface CreditPackage {
+  id: string; // Stripe Price ID from your dashboard.
+  name: string;
+  credits: number;
+  priceUsd: number; // Display price in USD cents (e.g. 299 = $2.99).
+  popular?: boolean;
+}
+
+// ─── Action Params
+
 interface CreateFeedbackParams {
   interviewId: string;
   userId: string;
   transcript: { role: string; content: string }[];
   feedbackId?: string;
-}
-
-interface User {
-  name: string;
-  email: string;
-  id: string;
-}
-
-interface InterviewCardProps {
-  interviewId?: string;
-  userId?: string;
-  role: string;
-  type: string;
-  techstack: string[];
-  createdAt?: string;
-}
-
-interface AgentProps {
-  userName: string;
-  userId?: string;
-  interviewId?: string;
-  feedbackId?: string;
-  type: "generate" | "interview";
-  questions?: string[];
-}
-
-interface RouteParams {
-  params: Promise<Record<string, string>>;
-  searchParams: Promise<Record<string, string>>;
 }
 
 interface GetFeedbackByInterviewIdParams {
@@ -80,10 +83,34 @@ interface SignUpParams {
   uid: string;
   name: string;
   email: string;
-  password: string;
 }
 
+// ─── Component Props
+
 type FormType = "sign-in" | "sign-up";
+
+interface InterviewCardProps {
+  interviewId?: string;
+  userId?: string;
+  role: string;
+  type: string;
+  techstack: string[];
+  createdAt?: string;
+}
+
+interface AgentProps {
+  userName: string;
+  userId?: string;
+  interviewId?: string;
+  feedbackId?: string;
+  type: "generate" | "practice";
+  questions?: string[];
+}
+
+interface RouteParams {
+  params: Promise<Record<string, string>>;
+  searchParams: Promise<Record<string, string>>;
+}
 
 interface InterviewFormProps {
   interviewId: string;
