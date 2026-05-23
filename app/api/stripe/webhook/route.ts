@@ -23,7 +23,6 @@ export async function POST(request: Request) {
     return new Response("Missing stripe-signature header.", { status: 400 });
   }
 
-  // ── Signature verification
   let event;
   try {
     event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
@@ -32,7 +31,6 @@ export async function POST(request: Request) {
     return new Response("Invalid signature.", { status: 400 });
   }
 
-  // ── Event handling ─────────────────────────────────────────────────────
   try {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;

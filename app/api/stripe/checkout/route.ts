@@ -25,7 +25,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // ── 3. Parse & validate body ───────────────────────────────────────────
     let body: unknown;
     try {
       body = await request.json();

@@ -4,16 +4,12 @@ import { FieldValue } from "firebase-admin/firestore";
 const USERS_COL = "users";
 const TRANSACTIONS_COL = "creditTransactions";
 
-// ─── Types (local, not relying on global index.d.ts) ─────────────────────
-
 interface AddCreditsParams {
   userId: string;
   creditsToAdd: number;
   stripeSessionId: string;
   packageName: string;
 }
-
-// ─── Exports ─────────────────────────────────────────────────────────────
 
 export async function dbGetCredits(userId: string): Promise<number> {
   const doc = await db.collection(USERS_COL).doc(userId).get();
@@ -88,6 +84,7 @@ export async function dbAddCreditsAfterPurchase(
 
   const batch = db.batch();
 
+  // FieldValue.increment is atomic and handles missing fields (treats as 0).
   batch.update(db.collection(USERS_COL).doc(userId), {
     credits: FieldValue.increment(creditsToAdd),
   });
@@ -105,6 +102,9 @@ export async function dbAddCreditsAfterPurchase(
   return { alreadyProcessed: false };
 }
 
+/**
+ * Returns the last `limit` credit transactions for a user, newest first.
+ */
 export async function dbGetCreditHistory(
   userId: string,
   limit = 20,

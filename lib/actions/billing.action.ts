@@ -65,3 +65,8 @@ export async function deductCredit(
     };
   }
 }
+
+// addCreditsAfterPurchase is intentionally NOT re-exported here.
+// The webhook route (app/api/stripe/webhook/route.ts) imports
+// dbAddCreditsAfterPurchase directly from lib/db/credits.ts to avoid
+// the "use server" boundary issue.

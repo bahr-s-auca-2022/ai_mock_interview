@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { QuestionBankButton } from "@/components/QuestionBankButton";
 
 import {
   getFeedbackByInterviewId,
@@ -145,6 +146,17 @@ const Feedback = async ({ params }: RouteParams) => {
             )}
         </>
       )}
+
+      {interview.questions.map((question, i) => (
+        <div key={i} className="flex items-start justify-between gap-3">
+          <p className="text-white">{question}</p>
+          <QuestionBankButton
+            question={question}
+            interviewRole={interview.role}
+            suggestedTags={interview.techstack}
+          />
+        </div>
+      ))}
 
       <div className="buttons flex gap-4 mt-8">
         <Button className="btn-secondary flex-1" asChild>

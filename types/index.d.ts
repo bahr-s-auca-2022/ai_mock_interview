@@ -25,15 +25,17 @@ interface Interview {
   finalized: boolean;
 }
 
+// ─── User ─────────────────────────────────────────────────────────────────────
+
 interface User {
   name: string;
   email: string;
   id: string;
-  credits: number; // Voice-session credits. New users start with 3.
+  credits: number;
   createdAt: string;
 }
 
-// ─── Billing
+// ─── Billing ──────────────────────────────────────────────────────────────────
 
 type CreditTransactionType = "initial_grant" | "purchase" | "deduction";
 
@@ -41,21 +43,53 @@ interface CreditTransaction {
   id: string;
   userId: string;
   type: CreditTransactionType;
-  amount: number; // Positive = added. Negative = deducted.
+  amount: number;
   description: string;
-  stripeSessionId?: string; // Present on "purchase" transactions only.
+  stripeSessionId?: string;
   createdAt: string;
 }
 
 interface CreditPackage {
-  id: string; // Stripe Price ID from your dashboard.
+  id: string;
   name: string;
   credits: number;
-  priceUsd: number; // Display price in USD cents (e.g. 299 = $2.99).
+  priceUsd: number;
   popular?: boolean;
 }
 
-// ─── Action Params
+// ─── Timed Mode ───────────────────────────────────────────────────────────────
+
+/** How many seconds the user gets per question in timed mode */
+type TimeLimitSeconds = 60 | 90 | 120;
+
+/** Recorded timing data for one question */
+interface QuestionTiming {
+  questionIndex: number;
+  question: string;
+  /** Seconds actually used (≤ timeLimitSeconds). */
+  timeTaken: number;
+  /** True if the timer ran out before the user finished. */
+  timedOut: boolean;
+}
+
+// ─── Question Bank ────────────────────────────────────────────────────────────
+
+interface SavedQuestion {
+  id: string;
+  userId: string;
+  question: string;
+  tags: string[];
+  interviewRole: string;
+  createdAt: string;
+}
+
+interface SaveQuestionParams {
+  question: string;
+  tags: string[];
+  interviewRole: string;
+}
+
+// ─── Action Params ────────────────────────────────────────────────────────────
 
 interface CreateFeedbackParams {
   interviewId: string;
@@ -85,7 +119,7 @@ interface SignUpParams {
   email: string;
 }
 
-// ─── Component Props
+// ─── Component Props ──────────────────────────────────────────────────────────
 
 type FormType = "sign-in" | "sign-up";
 
@@ -105,6 +139,10 @@ interface AgentProps {
   feedbackId?: string;
   type: "generate" | "practice";
   questions?: string[];
+  /** Enables the per-question countdown timer overlay. Only valid when type="practice" */
+  timedMode?: boolean;
+  /** Seconds per question. Defaults to 90. Only used when timedMode=true */
+  timeLimitSeconds?: TimeLimitSeconds;
 }
 
 interface RouteParams {

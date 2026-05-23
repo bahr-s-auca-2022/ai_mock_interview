@@ -31,7 +31,6 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-10 space-y-12">
-      {/* ── Back nav ──────────────────────────────────────────────────────── */}
       <Link
         href="/"
         className="inline-flex items-center gap-2 text-light-400 hover:text-white transition-colors text-sm"
@@ -41,15 +40,6 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
         Back to Dashboard
       </Link>
 
-      {/* ── Payment status banners ────────────────────────────────────────── */}
-
-      {/*
-        BillingSuccessRefresh is a Client Component.
-        It shows the success banner AND auto-calls router.refresh() after 3s
-        to re-fetch updated credits from Firestore once the webhook has fired.
-        This solves the race condition where the page renders before the
-        webhook writes credits to Firestore.
-      */}
       <BillingSuccessRefresh isSuccess={payment === "success"} />
 
       {payment === "cancelled" && (
@@ -68,7 +58,6 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
         </div>
       )}
 
-      {/* ── Balance card ──────────────────────────────────────────────────── */}
       <section aria-labelledby="balance-heading">
         <div className="rounded-2xl border border-white/10 bg-dark-200 p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
@@ -84,7 +73,6 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                 className="text-accent-mustard"
                 aria-hidden="true"
               />
-              {/* FIX: was {user.credits} — renders blank if field is undefined */}
               <span className="text-5xl font-bold text-white">{credits}</span>
               <span className="text-light-400 text-xl mt-2">
                 {credits === 1 ? "credit" : "credits"}
@@ -111,7 +99,6 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
         </div>
       </section>
 
-      {/* ── Credit packages ───────────────────────────────────────────────── */}
       <section aria-labelledby="plans-heading">
         <h2 id="plans-heading" className="text-2xl font-bold text-white mb-2">
           Top Up Credits
@@ -128,7 +115,6 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
         <BillingPlans />
       </section>
 
-      {/* ── Transaction history ───────────────────────────────────────────── */}
       <section aria-labelledby="history-heading">
         <h2 id="history-heading" className="text-2xl font-bold text-white mb-6">
           Transaction History
