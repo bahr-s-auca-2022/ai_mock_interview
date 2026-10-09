@@ -93,7 +93,7 @@ const AuthForm = ({ type: initialType }: { type: "sign-in" | "sign-up" }) => {
           uid: userCredentials.user.uid,
           name: values.name!,
           email: values.email,
-          // password: values.password!,
+          password: values.password!,
         });
         if (!result?.success) return toast.error(result?.message);
         toast.success("Account created! Please sign in.");
