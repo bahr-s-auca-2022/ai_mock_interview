@@ -39,7 +39,7 @@ const authFormSchema = (mode: "sign-in" | "sign-up" | "reset") => {
 const AuthForm = ({ type: initialType }: { type: "sign-in" | "sign-up" }) => {
   const router = useRouter();
   const [mode, setMode] = useState<"sign-in" | "sign-up" | "reset">(
-    initialType
+    initialType,
   );
   const [isLoading, setIsLoading] = useState(false);
 
@@ -87,13 +87,13 @@ const AuthForm = ({ type: initialType }: { type: "sign-in" | "sign-up" }) => {
         const userCredentials = await createUserWithEmailAndPassword(
           auth,
           values.email,
-          values.password!
+          values.password!,
         );
         const result = await signUp({
           uid: userCredentials.user.uid,
           name: values.name!,
           email: values.email,
-          password: values.password!,
+          // password: values.password!,
         });
         if (!result?.success) return toast.error(result?.message);
         toast.success("Account created! Please sign in.");
@@ -102,7 +102,7 @@ const AuthForm = ({ type: initialType }: { type: "sign-in" | "sign-up" }) => {
         const userCredentials = await signInWithEmailAndPassword(
           auth,
           values.email,
-          values.password!
+          values.password!,
         );
         const idToken = await userCredentials.user.getIdToken();
         await signIn({ email: values.email, idToken });
@@ -170,15 +170,15 @@ const AuthForm = ({ type: initialType }: { type: "sign-in" | "sign-up" }) => {
               {mode === "sign-up"
                 ? "Join EchoMock"
                 : mode === "reset"
-                ? "Reset Password"
-                : "Sign in successfully"}
+                  ? "Reset Password"
+                  : "Sign in successfully"}
             </h2>
             <p className="text-light-400">
               {mode === "sign-up"
                 ? "Start your journey to career excellence."
                 : mode === "reset"
-                ? "Enter your email to receive a reset link."
-                : "Enter your credentials to access your dashboard."}
+                  ? "Enter your email to receive a reset link."
+                  : "Enter your credentials to access your dashboard."}
             </p>
           </div>
 
@@ -260,10 +260,10 @@ const AuthForm = ({ type: initialType }: { type: "sign-in" | "sign-up" }) => {
                 {isLoading
                   ? "Please wait..."
                   : mode === "sign-up"
-                  ? "Create Account"
-                  : mode === "reset"
-                  ? "Send Reset Link"
-                  : "Sign In"}
+                    ? "Create Account"
+                    : mode === "reset"
+                      ? "Send Reset Link"
+                      : "Sign In"}
               </Button>
             </form>
           </Form>
@@ -273,8 +273,8 @@ const AuthForm = ({ type: initialType }: { type: "sign-in" | "sign-up" }) => {
             {mode === "sign-up"
               ? "Already have an account?"
               : mode === "reset"
-              ? "Remembered your password?"
-              : "New to EchoMock?"}{" "}
+                ? "Remembered your password?"
+                : "New to EchoMock?"}{" "}
             <button
               onClick={() =>
                 setMode(mode === "sign-up" ? "sign-in" : "sign-up")
