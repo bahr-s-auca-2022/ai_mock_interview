@@ -44,7 +44,7 @@ const page = async ({ params }: RouteParams) => {
         interviewId={id}
         type="practice"
         questions={interview.questions}
-        timedMode={true}
+        // timedMode={true}
       />
     </>
   );
